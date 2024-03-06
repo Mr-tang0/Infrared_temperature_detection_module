@@ -2,12 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include<QtSerialPort/QSerialPort>
-#include<QtSerialPort/QSerialPortInfo>
-#include<QDebug>
-#include <QTimer>
 #include "portconnect.h"
-#include <QEvent>
+#include<QDebug>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,35 +20,24 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void connectPort(QString portName,int baundrate,bool open);
+    portConnect *port = new portConnect;
 
-    void getTemperature();
+    QTimer *uiFreshTimer = new QTimer;
+    int historyMax = 0;
 
-    void setEmisvity(float emissvity);
-    QByteArray buildData(QString data);
-    QByteArray CRC16(QByteArray data);
-
-    QByteArray reseiveMessage;
 
 private slots:
-    void on_actionemissvity_triggered();
-
     void on_clearButton_clicked();
+
+    void on_actionemissvity_triggered();
 
 private:
     Ui::MainWindow *ui;
-    float decode(QString data);
-    QString encode(float data);
-    QSerialPort *myPort = new QSerialPort;
-    QTimer *timer = new QTimer;
-    portConnect *portset = new portConnect;
 
-    QList<int> history;
-    QFont m_font;
 
 protected:
     void resizeEvent(QResizeEvent *event) override {
-        // 当Widget大小发生改变时，这个函数会被调用
+
         QWidget::resizeEvent(event);
 
         resize();

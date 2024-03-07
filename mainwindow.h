@@ -22,14 +22,19 @@ public:
 
     portConnect *port = new portConnect;
 
+    void autoChangeEissvity();
     QTimer *uiFreshTimer = new QTimer;
     int historyMax = 0;
-
+    int tempretrue;
+    int setEmissvityCount = 0;
 
 private slots:
     void on_clearButton_clicked();
 
     void on_actionemissvity_triggered();
+
+
+    void on_radioButton_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;

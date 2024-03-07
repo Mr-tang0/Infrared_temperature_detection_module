@@ -7,11 +7,59 @@ portConnect::portConnect(QWidget *parent)
 {
 
     ui->setupUi(this);
+    connect(this,&portConnect::thisShow,this,[=](){
+        on_connect_clicked();
+        delay(100);
+        on_connect_clicked();
+
+    });
+
     QList<QSerialPortInfo> serialPorts = QSerialPortInfo::availablePorts();
     foreach(const QSerialPortInfo &serialPortInfo, serialPorts)
     {
         ui->comPortName->addItem(serialPortInfo.portName());
     }
+    on_connect_clicked();
+    delay(500);
+    myTimer->start(500);
+
+
+    connect(ui->comboBox,&QComboBox::currentTextChanged,[=](){
+        int text = ui->comboBox->currentIndex();
+        switch (text) {
+        case 0:
+            ui->emissrate->setValue(0.8);
+            break;
+        case 1:
+            ui->emissrate->setValue(0.15);
+            break;
+        case 2:
+            ui->emissrate->setValue(0.2);
+            break;
+        case 3:
+            ui->emissrate->setValue(0.3);
+            break;
+        case 4:
+            ui->emissrate->setValue(0.15);
+            break;
+        case 5:
+            ui->emissrate->setValue(0.2);
+            break;
+        case 6:
+            ui->emissrate->setValue(0.75);
+            break;
+        case 7:
+            ui->emissrate->setValue(0.15);
+            break;
+        case 8:
+            ui->emissrate->setValue(0.2);
+            break;
+
+        default:
+            break;
+        }
+
+    });
 
     connect(myPort,&QSerialPort::readyRead,this, [=]()
     {
@@ -32,25 +80,29 @@ portConnect::portConnect(QWidget *parent)
                 reseiveMessage.remove(0,9);
 
             }
-
-
-
         }
     });
 
     connect(myTimer,&QTimer::timeout,this, [=]()
     {
+        qDebug()<<"myTimer";
         getTemperature();
     });
     connect(myLightTimer,&QTimer::timeout,this, [=]()
     {
+        qDebug()<<"myLightTimer";
         openLight(true);
     });
     connect(tempTimer,&QTimer::timeout,this, [=]()
     {
         temp++;
         if(temp<4) ui->emissrate->setValue(currentDecodeData);
-        else tempTimer->stop();
+        else
+        {
+            tempTimer->stop();
+            temp=0;
+            qDebug()<<temp;
+        }
     });
 
 
@@ -110,7 +162,7 @@ void portConnect::getEmissvity()//获取发射率
 void portConnect::openLight(bool open)//开关激光
 {
     if(myPort->isOpen())
-    {
+    {{}
         if(open)
         {
             QString openL = "01 10 04 38 00 01 02 00 01";
@@ -129,6 +181,7 @@ void portConnect::openLight(bool open)//开关激光
 
 void portConnect::setEmisvity(float emissvity)//写发射率
 {
+
     QString emissvityStr = encode(emissvity);
     QString getTemp = "01 10 04 02 00 02 04 "+emissvityStr.mid(4,2)+" "+emissvityStr.mid(6,2)+" "+emissvityStr.mid(0,2)+" "+emissvityStr.mid(2,2);
     QByteArray builtData =buildData(getTemp);
@@ -140,10 +193,6 @@ void portConnect::setEmisvity(float emissvity)//写发射率
     }
 }
 
-void portConnect::autoChangeEissvity()//自动修改发射率
-{
-
-}
 
 QByteArray portConnect::buildData(QString data)
 {
@@ -237,18 +286,24 @@ QString portConnect::encode(float data)
 
 void portConnect::on_connect_clicked()
 {
-    QString portName = ui->comPortName->currentText();
-    int baundrate = ui->baundrate->currentText().toInt();
+    myTimer->stop();
+    myLightTimer->stop();
+    currentDecodeData = 0;
+    reseiveMessage.clear();
+
+    portName = ui->comPortName->currentText();
+    baundrate = ui->baundrate->currentText().toInt();
 
     if(connectPort(portName,baundrate,true))
     {
         ui->connect->setText("断开");
         delay(50);
         getEmissvity();
-        tempTimer->start(100);
-        delay(50);
-        // ui->emissrate->setValue(currentDecodeData);
+        tempTimer->start(50);
+        delay(120);
+
         openLight(true);
+        myTimer->start(500);
         myLightTimer->start(60000);
         delay(50);
 
@@ -268,17 +323,17 @@ void portConnect::on_save_clicked()
     delay(50);
     reseiveMessage.clear();
 
-    QString portName = ui->comPortName->currentText();
-    int baundrate = ui->baundrate->currentText().toInt();
+    portName = ui->comPortName->currentText();
+    baundrate = ui->baundrate->currentText().toInt();
     float emissvity = ui->emissrate->value();
 
     setEmisvity(emissvity);
 
     delay(50);
 
-    myTimer->start(100);
-
     this->hide();
+    myTimer->start(500);
+
     emit saved(portName, baundrate);
 
 }

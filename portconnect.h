@@ -27,7 +27,7 @@ public:
     void getEmissvity();
     void setEmisvity(float emissvity);
     void openLight(bool open);
-    void autoChangeEissvity();
+
 
     QSerialPort *myPort = new QSerialPort;
 
@@ -37,6 +37,8 @@ public:
     QTimer *myLightTimer = new QTimer;
     QTimer *tempTimer = new QTimer;
     int temp= 0;
+    QString portName;
+    int baundrate;
 
 private slots:
     void on_connect_clicked();
@@ -54,6 +56,19 @@ private:
 signals:
 
     void saved(QString portName, int baundrate);
+    void thisShow();
+    void thisHide();
+protected:
+    void showEvent(QShowEvent*event)
+    {
+        emit thisShow();
+        QWidget::showEvent(event);
+    }
+    void hideEvent(QHideEvent*event)
+    {
+        emit thisHide();
+        QWidget::hideEvent(event);
+    }
 };
 
 #endif // PORTCONNECT_H

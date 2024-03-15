@@ -26,36 +26,38 @@ portConnect::portConnect(QWidget *parent)
 
     connect(ui->comboBox,&QComboBox::currentTextChanged,[=](){
         int text = ui->comboBox->currentIndex();
+        qDebug()<<text;
         switch (text) {
         case 0:
-            ui->emissrate->setValue(0.8);
+            rate=0.15;
             break;
         case 1:
-            ui->emissrate->setValue(0.15);
-            break;
+            rate=0.45;
+             break;
         case 2:
-            ui->emissrate->setValue(0.2);
+            rate=0.2;
             break;
         case 3:
-            ui->emissrate->setValue(0.3);
+            rate=0.3;
             break;
         case 4:
-            ui->emissrate->setValue(0.15);
+            rate=0.15;
             break;
         case 5:
-            ui->emissrate->setValue(0.2);
+            rate=0.2;
             break;
         case 6:
-            ui->emissrate->setValue(0.75);
+            rate=0.75;
             break;
         case 7:
-            ui->emissrate->setValue(0.15);
+            rate=0.15;
             break;
         case 8:
-            ui->emissrate->setValue(0.2);
+            rate=0.2;
             break;
 
         default:
+            rate=0.45;
             break;
         }
 
@@ -85,18 +87,16 @@ portConnect::portConnect(QWidget *parent)
 
     connect(myTimer,&QTimer::timeout,this, [=]()
     {
-        qDebug()<<"myTimer";
         getTemperature();
     });
     connect(myLightTimer,&QTimer::timeout,this, [=]()
     {
-        qDebug()<<"myLightTimer";
         openLight(true);
     });
     connect(tempTimer,&QTimer::timeout,this, [=]()
     {
         temp++;
-        if(temp<4) ui->emissrate->setValue(currentDecodeData);
+        if(temp<4) rate=currentDecodeData;
         else
         {
             tempTimer->stop();
@@ -181,6 +181,7 @@ void portConnect::openLight(bool open)//开关激光
 
 void portConnect::setEmisvity(float emissvity)//写发射率
 {
+    qDebug()<<emissvity;
 
     QString emissvityStr = encode(emissvity);
     QString getTemp = "01 10 04 02 00 02 04 "+emissvityStr.mid(4,2)+" "+emissvityStr.mid(6,2)+" "+emissvityStr.mid(0,2)+" "+emissvityStr.mid(2,2);
@@ -325,7 +326,8 @@ void portConnect::on_save_clicked()
 
     portName = ui->comPortName->currentText();
     baundrate = ui->baundrate->currentText().toInt();
-    float emissvity = ui->emissrate->value();
+    qDebug()<<rate;
+    float emissvity = rate;
 
     setEmisvity(emissvity);
 

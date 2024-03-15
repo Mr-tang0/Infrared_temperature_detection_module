@@ -40,6 +40,8 @@ public:
     QString portName;
     int baundrate;
 
+    double rate = 0.45;
+
 private slots:
     void on_connect_clicked();
     void on_save_clicked();

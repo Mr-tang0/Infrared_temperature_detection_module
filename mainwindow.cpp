@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "portconnect.h"
 #include<QString>
+#include <qrandom.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -13,21 +14,31 @@ MainWindow::MainWindow(QWidget *parent)
     connect(port,&portConnect::saved,this,[=](QString portName, int baundrate){
         ui->port->setText(portName+": "+QString::number(baundrate));
     });
+
     connect(uiFreshTimer,&QTimer::timeout,this,[=](){
         ui->port->setText(port->portName+": "+QString::number(port->baundrate));
         tempretrue = port->currentDecodeData;
+        //test
+        // tempretrue = 1751+QRandomGenerator::global()->bounded(10);
 
         if(tempretrue>650 && tempretrue<2700)
         {
-            ui->label_temperature->setText(QString::number(tempretrue));
-            // setEmissvityCount++;
-            // qDebug()<<setEmissvityCount;
-            // if(setEmissvityCount>20)
+            //1750限制
+            // if(tempretrue>=1750)
             // {
-            //     autoChangeEissvity();
-            //     setEmissvityCount = 0;
+            //     int temp;
+            //     if(QRandomGenerator::global()->bounded(15)==2)
+            //     {
+            //         temp = QRandomGenerator::global()->bounded(3);
+            //         tempretrue = ui->label_temperature->text().toInt()+temp;
+            //     }else if(QRandomGenerator::global()->bounded(15)==7)
+            //     {
+            //         temp = QRandomGenerator::global()->bounded(3);
+            //         tempretrue = ui->label_temperature->text().toInt()-temp;
+            //     }
+            //     else tempretrue = ui->label_temperature->text().toInt();
             // }
-
+            ui->label_temperature->setText(QString::number(tempretrue));
             historyMax = qMax(historyMax,tempretrue);
         }
         else
